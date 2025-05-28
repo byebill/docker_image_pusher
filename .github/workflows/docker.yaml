@@ -11,6 +11,7 @@ env:
   ALIYUN_NAME_SPACE: "${{ secrets.ALIYUN_NAME_SPACE }}"
   ALIYUN_REGISTRY_USER: "${{ secrets.ALIYUN_REGISTRY_USER }}"
   ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
+  VALUES_YAML_URL: "https://raw.githubusercontent.com/infiniflow/ragflow/refs/heads/main/helm/values.yaml"
 
 jobs:
 
@@ -51,6 +52,33 @@ jobs:
 
     - name: Checkout Code
       uses: actions/checkout@v4
+
+    - name: Download and Parse values.yaml
+      run: |
+        # 下载 values.yaml
+        curl -o values.yaml $VALUES_YAML_URL
+        
+        # 解析 values.yaml 中的镜像并写入 images.txt
+        {
+          # RAGFlow 镜像
+          grep "RAGFLOW_IMAGE:" values.yaml | grep -v "#" | awk -F': ' '{print $2}' | tr -d '"'
+          
+          # Infinity 镜像
+          echo "$(grep -A1 "infinity:" -A2 values.yaml | grep "repository:" | awk -F': ' '{print $2}'):$(grep -A3 "infinity:" values.yaml | grep "tag:" | awk -F': ' '{print $2}')"
+          
+          # MinIO 镜像
+          echo "$(grep -A1 "minio:" -A2 values.yaml | grep "repository:" | awk -F': ' '{print $2}'):$(grep -A3 "minio:" values.yaml | grep "tag:" | awk -F': ' '{print $2}')"
+          
+          # MySQL 镜像
+          echo "$(grep -A1 "mysql:" -A2 values.yaml | grep "repository:" | awk -F': ' '{print $2}'):$(grep -A3 "mysql:" values.yaml | grep "tag:" | awk -F': ' '{print $2}')"
+          
+          # Redis 镜像
+          echo "$(grep -A1 "redis:" -A2 values.yaml | grep "repository:" | awk -F': ' '{print $2}'):$(grep -A3 "redis:" values.yaml | grep "tag:" | awk -F': ' '{print $2}')"
+        } > images.txt
+        
+        # 显示解析结果
+        echo "Generated images.txt content:"
+        cat images.txt
 
     - name: Docker Setup Buildx
       uses: docker/setup-buildx-action@v3
