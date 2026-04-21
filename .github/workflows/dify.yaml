@@ -52,7 +52,7 @@ jobs:
       run: |
         curl -o docker-compose.yaml $DIFY_COMPOSE_URL
         # 提取主要服务镜像
-        grep -E 'image:' docker-compose.yaml | grep -E 'dify-|weaviate|postgres|nginx|redis|squid' | awk '{print $2}' | sort | uniq > images.txt
+        yq '.services[].image' docker-compose.yaml | sed 's/"//g' | sort | uniq > images.txt
         echo "Generated images.txt content:"
         cat images.txt
 
