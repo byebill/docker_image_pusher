@@ -1,4 +1,4 @@
-name: Docker-Dify
+name: dify
 
 on:
   workflow_dispatch:
