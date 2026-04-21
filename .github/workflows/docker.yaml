@@ -1,4 +1,4 @@
-name: Docker
+name: ragflow
 
 on:
   workflow_dispatch:
