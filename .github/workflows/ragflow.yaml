@@ -60,23 +60,7 @@ jobs:
         # 下载 values.yaml
         curl -o values.yaml $VALUES_YAML_URL
         
-        # 解析 values.yaml 中的镜像并写入 images.txt
-        {
-          # RAGFlow 镜像
-          grep "RAGFLOW_IMAGE:" values.yaml | grep -v "#" | awk -F': ' '{print $2}' | tr -d '"'
-          
-          # Infinity 镜像
-          echo "$(grep -A1 "infinity:" -A2 values.yaml | grep "repository:" | awk -F': ' '{print $2}'):$(grep -A3 "infinity:" values.yaml | grep "tag:" | awk -F': ' '{print $2}')"
-          
-          # MinIO 镜像
-          echo "$(grep -A1 "minio:" -A2 values.yaml | grep "repository:" | awk -F': ' '{print $2}'):$(grep -A3 "minio:" values.yaml | grep "tag:" | awk -F': ' '{print $2}')"
-          
-          # MySQL 镜像
-          echo "$(grep -A1 "mysql:" -A2 values.yaml | grep "repository:" | awk -F': ' '{print $2}'):$(grep -A3 "mysql:" values.yaml | grep "tag:" | awk -F': ' '{print $2}')"
-          
-          # Redis 镜像
-          echo "$(grep -A1 "redis:" -A2 values.yaml | grep "repository:" | awk -F': ' '{print $2}'):$(grep -A3 "redis:" values.yaml | grep "tag:" | awk -F': ' '{print $2}')"
-        } > images.txt
+        yq '.services[].image' values.yaml | sed 's/"//g' | sort | uniq > images.txt
         
         # 显示解析结果
         echo "Generated images.txt content:"
