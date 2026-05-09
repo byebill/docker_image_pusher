@@ -97,7 +97,7 @@ jobs:
             if [ -z "$platform" ]; then
                 platform_prefix=""
             else
-                platform_prefix="${platform//\/\/}_"
+                platform_prefix="${platform//\//_}"
             fi
             image=$(echo "$line" | awk '{print $NF}')
             image_name_tag=$(echo "$image" | awk -F'/' '{print $NF}')
